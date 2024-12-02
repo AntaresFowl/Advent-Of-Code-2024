@@ -3,16 +3,6 @@ use std::simd::{num::*, Simd};
 use aoc_runner_derive::aoc;
 use nohash_hasher::{BuildNoHashHasher, IntMap};
 
-#[inline]
-fn parse_num(input: &[u8]) -> i32 {
-    let mut out = 0;
-    for num in input {
-        out *= 10;
-        out += (num - 48) as i32;
-    }
-    out
-}
-
 #[aoc(day1, part1)]
 #[inline]
 pub fn part1(input: &str) -> i32 {
@@ -21,29 +11,35 @@ pub fn part1(input: &str) -> i32 {
     let mut first = Vec::with_capacity(input.len() / 3);
     let mut second = Vec::with_capacity(input.len() / 3);
 
-    let mut prev_pos = 0;
-    let mut pos = 0;
+    let mut num1 = 0;
+    let mut num2 = 0;
+    let mut current = true;
+    for &byte in input {
+        if byte == b'\n' || byte == b'\r' {
+            first.push(num1);
+            second.push(num2);
 
-    while pos < input.len() {
-        if input[pos] == b' ' {
-            let next_pos = pos + 4 + (pos - prev_pos);
+            num1 = 0;
+            num2 = 0;
+            current = true;
 
-            // SAFETY: This is checked to be inside
-            let f = unsafe { input.get_unchecked(prev_pos..pos) };
-            // SAFETY: Goes against format
-            let s = unsafe { input.get_unchecked(pos + 3..next_pos - 1) };
-
-            let f = parse_num(f);
-            let s = parse_num(s);
-
-            first.push(f);
-            second.push(s);
-
-            prev_pos = next_pos;
-            pos += 2;
-        };
-        pos += 1;
+            continue;
+        }
+        if byte == b' ' {
+            current = false;
+            continue;
+        }
+        if current {
+            num1 *= 10;
+            num1 += (byte.wrapping_sub(48)) as i32;
+        } else {
+            num2 *= 10;
+            num2 += (byte.wrapping_sub(48)) as i32;
+        }
     }
+
+    first.push(num1);
+    second.push(num2);
 
     first.sort_unstable();
     second.sort_unstable();
@@ -81,29 +77,35 @@ pub fn part2(input: &str) -> i32 {
     let mut first = Vec::with_capacity(input.len() / 3);
     let mut second = IntMap::with_capacity_and_hasher(input.len() / 3, BuildNoHashHasher::default());
 
-    let mut prev_pos = 0;
-    let mut pos = 0;
+    let mut num1 = 0;
+    let mut num2 = 0;
+    let mut current = true;
+    for &byte in input {
+        if byte == b'\n' || byte == b'\r' {
+            first.push(num1);
+            *second.entry(num2).or_insert(0) += 1;
 
-    while pos < input.len() {
-        if input[pos] == b' ' {
-            let next_pos = pos + 4 + (pos - prev_pos);
+            num1 = 0;
+            num2 = 0;
+            current = true;
 
-            // SAFETY: This is checked to be inside
-            let f = unsafe { input.get_unchecked(prev_pos..pos) };
-            // SAFETY: Goes against format
-            let s = unsafe { input.get_unchecked(pos + 3..next_pos - 1) };
-
-            let f = parse_num(f);
-            let s = parse_num(s);
-
-            first.push(f);
-            *second.entry(s).or_insert(0) += 1;
-
-            prev_pos = next_pos;
-            pos += 2;
-        };
-        pos += 1;
+            continue;
+        }
+        if byte == b' ' {
+            current = false;
+            continue;
+        }
+        if current {
+            num1 *= 10;
+            num1 += (byte.wrapping_sub(48)) as i32;
+        } else {
+            num2 *= 10;
+            num2 += (byte.wrapping_sub(48)) as i32;
+        }
     }
+
+    first.push(num1);
+    *second.entry(num2).or_insert(0) += 1;
 
     first
         .iter()
