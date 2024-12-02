@@ -21,6 +21,7 @@ fn input_gen(input: &[u8]) -> Lists {
 
     let mut prev_pos = 0;
     let mut pos = 0;
+
     while pos < input.len() {
         if input[pos] == b' ' {
             let next_pos = pos + 4 + (pos - prev_pos);
@@ -45,7 +46,7 @@ fn input_gen(input: &[u8]) -> Lists {
 }
 
 #[aoc(day1, part1, simd)]
-fn part1(input: &[u8]) -> i32 {
+pub fn part1(input: &[u8]) -> i32 {
     let (mut first, mut second) = input_gen(input);
 
     first.sort_unstable();
@@ -78,7 +79,7 @@ fn part1(input: &[u8]) -> i32 {
 }
 
 #[aoc(day1, part2)]
-fn part2(input: &[u8]) -> i32 {
+pub fn part2(input: &[u8]) -> i32 {
     let (first, second) = input_gen(input);
     first.iter()
         .map(|number| {
