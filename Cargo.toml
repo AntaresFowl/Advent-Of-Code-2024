@@ -6,7 +6,8 @@ edition = "2021"
 [dependencies]
 aoc-runner = "0.3.0"
 aoc-runner-derive = "0.3.0"
-gxhash = "3.4.1"
+mimalloc = { version = "0.1.43", default-features=false }
+nohash-hasher = "0.2.0"
 
 [profile.release]
 lto = true

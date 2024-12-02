@@ -1,7 +1,7 @@
 use std::simd::{num::*, Simd};
 
 use aoc_runner_derive::aoc;
-use gxhash::{HashMap, HashMapExt};
+use nohash_hasher::{BuildNoHashHasher, IntMap};
 
 #[inline]
 fn parse_num(input: &[u8]) -> i32 {
@@ -18,8 +18,8 @@ fn parse_num(input: &[u8]) -> i32 {
 pub fn part1(input: &str) -> i32 {
     let input = input.as_bytes();
 
-    let mut first = Vec::with_capacity(input.len());
-    let mut second = Vec::with_capacity(input.len());
+    let mut first = Vec::with_capacity(input.len() / 3);
+    let mut second = Vec::with_capacity(input.len() / 3);
 
     let mut prev_pos = 0;
     let mut pos = 0;
@@ -78,8 +78,8 @@ pub fn part1(input: &str) -> i32 {
 pub fn part2(input: &str) -> i32 {
     let input = input.as_bytes();
 
-    let mut first = Vec::with_capacity(input.len());
-    let mut second = HashMap::with_capacity(input.len());
+    let mut first = Vec::with_capacity(input.len() / 3);
+    let mut second = IntMap::with_capacity_and_hasher(input.len() / 3, BuildNoHashHasher::default());
 
     let mut prev_pos = 0;
     let mut pos = 0;
