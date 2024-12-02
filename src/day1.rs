@@ -15,7 +15,9 @@ fn parse_num(input: &[u8]) -> i32 {
 }
 
 #[inline(always)]
-fn input_gen(input: &[u8]) -> Lists {
+fn input_gen(input: &str) -> Lists {
+    let input = input.as_bytes();
+
     let mut first = Vec::new();
     let mut second = Vec::new();
 
@@ -46,7 +48,7 @@ fn input_gen(input: &[u8]) -> Lists {
 }
 
 #[aoc(day1, part1, simd)]
-pub fn part1(input: &[u8]) -> i32 {
+pub fn part1(input: &str) -> i32 {
     let (mut first, mut second) = input_gen(input);
 
     first.sort_unstable();
@@ -79,7 +81,7 @@ pub fn part1(input: &[u8]) -> i32 {
 }
 
 #[aoc(day1, part2)]
-pub fn part2(input: &[u8]) -> i32 {
+pub fn part2(input: &str) -> i32 {
     let (first, second) = input_gen(input);
     first.iter()
         .map(|number| {
@@ -91,7 +93,7 @@ pub fn part2(input: &[u8]) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    const INPUT: &[u8] = b"3   4
+    const INPUT: &str = "3   4
 4   3
 2   5
 1   3
