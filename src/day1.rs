@@ -14,11 +14,7 @@ pub fn part1(input: &str) -> i32 {
     let mut num1 = 0;
     let mut num2 = 0;
     let mut current = true;
-
-    let mut i = 0;
-
-    while i < input.len() {
-        let byte = input[i];
+    for &byte in input {
         if byte == b'\n' || byte == b'\r' {
             first.push(num1);
             second.push(num2);
@@ -27,11 +23,9 @@ pub fn part1(input: &str) -> i32 {
             num2 = 0;
             current = true;
 
-            i += 1;
             continue;
         }
         if byte == b' ' {
-            i += 3;
             current = false;
             continue;
         }
@@ -42,7 +36,6 @@ pub fn part1(input: &str) -> i32 {
             num2 *= 10;
             num2 += i32::from(byte.wrapping_sub(48));
         }
-        i += 1;
     }
 
     first.push(num1);
@@ -89,9 +82,7 @@ pub fn part2(input: &str) -> i32 {
     let mut num1 = 0;
     let mut num2 = 0;
     let mut current = true;
-    let mut i = 0;
-    while i < input.len() {
-        let byte = input[i];
+    for &byte in input {
         if byte == b'\n' || byte == b'\r' {
             first.push(num1);
             *second.entry(num2).or_insert(0) += 1;
@@ -100,11 +91,9 @@ pub fn part2(input: &str) -> i32 {
             num2 = 0;
             current = true;
 
-            i += 1;
             continue;
         }
         if byte == b' ' {
-            i += 3;
             current = false;
             continue;
         }
@@ -115,7 +104,6 @@ pub fn part2(input: &str) -> i32 {
             num2 *= 10;
             num2 += i32::from(byte.wrapping_sub(48));
         }
-        i += 1;
     }
 
     first.push(num1);
