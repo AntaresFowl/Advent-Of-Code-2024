@@ -1,8 +1,7 @@
-use std::simd::{Simd, num::*};
+use std::simd::{num::*, Simd};
 
 use aoc_runner_derive::aoc;
-
-type Lists = (Vec<i32>, Vec<i32>);
+use gxhash::HashMap;
 
 #[inline]
 fn parse_num(input: &[u8]) -> i32 {
@@ -14,8 +13,9 @@ fn parse_num(input: &[u8]) -> i32 {
     out
 }
 
-#[inline(always)]
-fn input_gen(input: &str) -> Lists {
+#[aoc(day1, part1, simd)]
+#[inline]
+pub fn part1(input: &str) -> i32 {
     let input = input.as_bytes();
 
     let mut first = Vec::new();
@@ -44,12 +44,6 @@ fn input_gen(input: &str) -> Lists {
         };
         pos += 1;
     }
-    (first, second)
-}
-
-#[aoc(day1, part1, simd)]
-pub fn part1(input: &str) -> i32 {
-    let (mut first, mut second) = input_gen(input);
 
     first.sort_unstable();
     second.sort_unstable();
@@ -73,20 +67,50 @@ pub fn part1(input: &str) -> i32 {
 
     let total = total.reduce_sum();
 
-    total + first.remainder()
-        .iter()
-        .zip(second.remainder())
-        .map(|(f, s)| (f - s).abs())
-        .sum::<i32>()
+    total
+        + first
+            .remainder()
+            .iter()
+            .zip(second.remainder())
+            .map(|(f, s)| (f - s).abs())
+            .sum::<i32>()
 }
 
 #[aoc(day1, part2)]
+#[inline]
 pub fn part2(input: &str) -> i32 {
-    let (first, second) = input_gen(input);
-    first.iter()
-        .map(|number| {
-            number * second.iter().filter(|&num| num == number).count() as i32
-        })
+    let input = input.as_bytes();
+
+    let mut first = Vec::new();
+    let mut second = HashMap::default();
+
+    let mut prev_pos = 0;
+    let mut pos = 0;
+
+    while pos < input.len() {
+        if input[pos] == b' ' {
+            let next_pos = pos + 4 + (pos - prev_pos);
+
+            // SAFETY: This is checked to be inside
+            let f = unsafe { input.get_unchecked(prev_pos..pos) };
+            // SAFETY: Goes against format
+            let s = unsafe { input.get_unchecked(pos + 3..next_pos - 1) };
+
+            let f = parse_num(f);
+            let s = parse_num(s);
+
+            first.push(f);
+            *second.entry(s).or_insert(0) += 1;
+
+            prev_pos = next_pos;
+            pos += 2;
+        };
+        pos += 1;
+    }
+
+    first
+        .iter()
+        .map(|&n| n * *second.entry(n).or_default())
         .sum()
 }
 
