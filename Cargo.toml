@@ -1,3 +1,4 @@
+cargo-features = ["codegen-backend"]
 [package]
 name = "yr2024"
 version = "0.1.0"
@@ -13,3 +14,13 @@ nohash-hasher = "0.2.0"
 lto = true
 codegen-units = 1
 panic = "abort"
+
+[profile.test]
+inherits = "release"
+opt-level = 0
+debug = 0
+strip = "none"
+lto = false
+codegen-units = 256
+incremental = true
+debug-assertions = true
