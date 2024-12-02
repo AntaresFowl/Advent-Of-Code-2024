@@ -55,9 +55,6 @@ pub fn part1(input: &str) -> i32 {
     while let Some(first) = first.next() {
         // SAFETY: Violation of input format, let's just ignore that this function is not marked unsafe
         let second = unsafe { second.next().unwrap_unchecked() };
-        // SAFETY: We only enter this loop if this here is true
-        unsafe { std::hint::assert_unchecked(first.len() == 64) };
-        unsafe { std::hint::assert_unchecked(second.len() == 64) };
 
         let first: Simd<i32, 32> = Simd::from_slice(first);
         let second: Simd<i32, 32> = Simd::from_slice(second);
