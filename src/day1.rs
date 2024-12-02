@@ -1,4 +1,4 @@
-use std::simd::{num::*, Simd};
+use std::simd::{num::SimdInt, Simd};
 
 use aoc_runner_derive::aoc;
 use nohash_hasher::{BuildNoHashHasher, IntMap};
@@ -31,10 +31,10 @@ pub fn part1(input: &str) -> i32 {
         }
         if current {
             num1 *= 10;
-            num1 += (byte.wrapping_sub(48)) as i32;
+            num1 += i32::from(byte.wrapping_sub(48));
         } else {
             num2 *= 10;
-            num2 += (byte.wrapping_sub(48)) as i32;
+            num2 += i32::from(byte.wrapping_sub(48));
         }
     }
 
@@ -48,6 +48,7 @@ pub fn part1(input: &str) -> i32 {
     let mut first = first.chunks_exact(64);
     let mut second = second.chunks_exact(64);
 
+    #[allow(clippy::while_let_on_iterator)]
     while let Some(first) = first.next() {
         // SAFETY: Violation of input format, let's just ignore that this function is not marked unsafe
         let second = unsafe { second.next().unwrap_unchecked() };
@@ -75,7 +76,8 @@ pub fn part2(input: &str) -> i32 {
     let input = input.as_bytes();
 
     let mut first = Vec::with_capacity(input.len() / 3);
-    let mut second = IntMap::with_capacity_and_hasher(input.len() / 3, BuildNoHashHasher::default());
+    let mut second =
+        IntMap::with_capacity_and_hasher(input.len() / 3, BuildNoHashHasher::default());
 
     let mut num1 = 0;
     let mut num2 = 0;
@@ -97,10 +99,10 @@ pub fn part2(input: &str) -> i32 {
         }
         if current {
             num1 *= 10;
-            num1 += (byte.wrapping_sub(48)) as i32;
+            num1 += i32::from(byte.wrapping_sub(48));
         } else {
             num2 *= 10;
-            num2 += (byte.wrapping_sub(48)) as i32;
+            num2 += i32::from(byte.wrapping_sub(48));
         }
     }
 
