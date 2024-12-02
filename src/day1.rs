@@ -15,7 +15,7 @@ fn parse_num(input: &[u8]) -> i32 {
 }
 
 #[inline(always)]
-fn alternate_gen(input: &[u8]) -> Lists {
+fn input_gen(input: &[u8]) -> Lists {
     let mut first = Vec::new();
     let mut second = Vec::new();
 
@@ -44,97 +44,9 @@ fn alternate_gen(input: &[u8]) -> Lists {
     (first, second)
 }
 
-#[inline(always)]
-fn input_gen(input: &[u8]) -> Lists {
-    let mut first = Vec::new();
-    let mut second = Vec::new();
-
-    for line in input.split(|&b| b == b'\n') {
-        let mut position = 0;
-        for byte in line {
-            if byte == &b' ' {
-                break;
-            }
-            position += 1;
-        }
-
-        // SAFETY: We know that this many bytes exist because we checked
-        let f = unsafe { line.get_unchecked(..position) };
-        // SAFETY: Violation of input format, let's just ignore that this function is not marked unsafe
-        let s = unsafe { line.get_unchecked(position + 3..) };
-
-        let f = parse_num(f);
-        let s = parse_num(s);
-
-        first.push(f);
-        second.push(s);
-    }
-
-    (first, second)
-}
-
-#[aoc(day1, part1)]
+#[aoc(day1, part1, simd)]
 fn part1(input: &[u8]) -> i32 {
     let (mut first, mut second) = input_gen(input);
-
-    first.sort_unstable();
-    second.sort_unstable();
-
-    first.iter()
-        .zip(second)
-        .map(|(f, s)| (f - s).abs())
-        .sum()
-}
-
-#[aoc(day1, part1, simd)]
-fn part1_simd(input: &[u8]) -> i32 {
-    let (mut first, mut second) = input_gen(input);
-
-    first.sort_unstable();
-    second.sort_unstable();
-
-    let mut total = Simd::splat(0);
-    let mut first = first.chunks_exact(64);
-    let mut second = second.chunks_exact(64);
-
-    while let Some(first) = first.next() {
-        // SAFETY: Violation of input format, let's just ignore that this function is not marked unsafe
-        let second = unsafe { second.next().unwrap_unchecked() };
-        // SAFETY: We only enter this loop if this here is true
-        unsafe { std::hint::assert_unchecked(first.len() == 64) };
-        unsafe { std::hint::assert_unchecked(second.len() == 64) };
-
-        let first: Simd<i32, 32> = Simd::from_slice(first);
-        let second: Simd<i32, 32> = Simd::from_slice(second);
-
-        total += (first - second).abs();
-    }
-
-    let total = total.reduce_sum();
-
-    total + first.remainder()
-        .iter()
-        .zip(second.remainder())
-        .map(|(f, s)| (f - s).abs())
-        .sum::<i32>()
-}
-
-#[aoc(day1, part1, alternate)]
-fn part1_alternate(input: &[u8]) -> i32 {
-    let (mut first, mut second) = input_gen(input);
-
-    first.sort_unstable();
-    second.sort_unstable();
-
-    first.iter()
-        .zip(second)
-        .map(|(f, s)| (f - s).abs())
-        .sum()
-}
-
-#[aoc(day1, part1, simd_alternate)]
-fn part1_simd_alternate(input: &[u8]) -> i32 {
-    let (mut first, mut second) = alternate_gen(input);
 
     first.sort_unstable();
     second.sort_unstable();
@@ -175,16 +87,6 @@ fn part2(input: &[u8]) -> i32 {
         .sum()
 }
 
-#[aoc(day1, part2, alternate)]
-fn part2_alternate(input: &[u8]) -> i32 {
-    let (first, second) = alternate_gen(input);
-    first.iter()
-        .map(|number| {
-            number * second.iter().filter(|&num| num == number).count() as i32
-        })
-        .sum()
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -201,27 +103,7 @@ mod tests {
     }
 
     #[test]
-    fn test_part1_alternate() {
-        assert_eq!(part1_alternate(INPUT), 11);
-    }
-
-    #[test]
-    fn test_part1_simd() {
-        assert_eq!(part1_simd(INPUT), 11);
-    }
-
-    #[test]
-    fn test_part1_simd_alternate() {
-        assert_eq!(part1_simd_alternate(INPUT), 11);
-    }
-
-    #[test]
     fn test_part2() {
         assert_eq!(part2(INPUT), 31);
-    }
-
-    #[test]
-    fn test_part2_alternate() {
-        assert_eq!(part2_alternate(INPUT), 31);
     }
 }
