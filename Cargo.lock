@@ -186,6 +186,7 @@ dependencies = [
  "aoc-runner",
  "aoc-runner-derive",
  "arrayvec",
+ "memchr",
  "mimalloc",
  "nohash-hasher",
 ]

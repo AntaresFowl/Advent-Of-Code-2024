@@ -8,6 +8,7 @@ edition = "2021"
 aoc-runner = "0.3.0"
 aoc-runner-derive = "0.3.0"
 arrayvec = "0.7.6"
+memchr = "2.7.4"
 mimalloc = { version = "0.1.43", default-features=false }
 nohash-hasher = "0.2.0"
 
