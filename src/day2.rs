@@ -130,7 +130,7 @@ pub fn part2(input: &str) -> usize {
                 is_ascending = diff.signum();
                 ascension_test_needed = false;
             }
-            if is_ascending != diff.signum() || is_ascending == 0 || diff.abs() > 3 {
+            if is_ascending != diff.signum() || diff.abs() > 3 {
                 if i == 1 {
                     line_is_safe = is_safe(
                         line.iter()
