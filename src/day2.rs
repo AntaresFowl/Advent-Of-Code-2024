@@ -1,4 +1,7 @@
+use std::i8;
+
 use aoc_runner_derive::aoc;
+use arrayvec::ArrayVec;
 
 fn get_first_two_bytes(mut i: usize, input: &[u8]) -> (i8, bool, i8, usize) {
     let mut first_nums = [0_i8; 2];
@@ -71,7 +74,7 @@ pub fn part1(input: &str) -> usize {
     score + is_safe as usize
 }
 
-fn is_safe(iter: impl Iterator<Item = isize>) -> bool {
+fn is_safe(iter: impl Iterator<Item = i8>) -> bool {
     let mut is_ascending = 0;
     let mut ascension_test_needed = true;
     iter.map_windows(|[level1, level2]| {
@@ -91,28 +94,72 @@ fn is_safe(iter: impl Iterator<Item = isize>) -> bool {
 #[aoc(day2, part2)]
 pub fn part2(input: &str) -> usize {
     let mut score = 0;
-    score += input
-        .lines()
+    let input = input.as_bytes();
+    let input = input.strip_prefix(b"\n").unwrap_or(input);
+    let lines = input.split(|&b| b == b'\n')
         .map(|line| {
-            is_safe(
-                line.split_whitespace()
-                    .map(str::parse::<isize>)
-                    .map(Result::unwrap),
-            ) || (0..line.len() / 2)
-                .map(|i| {
-                    is_safe(
-                        line.split_whitespace()
-                            .map(str::parse::<isize>)
-                            .map(Result::unwrap)
-                            .enumerate()
-                            .filter(move |(pos, _)| i != *pos)
-                            .map(|(_, level)| level),
-                    )
+            line.split(|&b| b == b' ')
+                .map(|bytes| {
+                    let mut num = 0;
+                    unsafe { std::hint::assert_unchecked(bytes.len() < 3) };
+                    for &byte in bytes {
+                        num *= 10;
+                        num += byte as i8 - 48;
+                    }
+                    num
                 })
-                .any(|is_safe| is_safe)
-        })
-        .filter(|&is_safe| is_safe)
-        .count();
+                .collect::<ArrayVec<_, 64>>()
+        });
+
+    for line in lines {
+        if line.len() < 2 {
+            break;
+        }
+
+        let mut line_is_safe = true;
+        let mut is_ascending = 0;
+        let mut ascension_test_needed = true;
+        for i in 0..line.len() - 1 {
+            let num  = unsafe { line.get_unchecked(i) };
+            let next = unsafe { line.get_unchecked(i + 1) };
+
+            let diff = next - num;
+            if ascension_test_needed {
+                is_ascending = diff.signum();
+                ascension_test_needed = false;
+            }
+            if is_ascending != diff.signum() || is_ascending == 0 || diff.abs() > 3 {
+                if i == 1 {
+                    line_is_safe = is_safe(
+                        line.iter()
+                            .enumerate()
+                            .filter(|(j, _)| *j != 0)
+                            .map(|(_, num)| *num)
+                    );
+                    if line_is_safe {
+                        break;
+                    }
+                }
+
+                line_is_safe = is_safe(
+                    line.iter()
+                        .enumerate()
+                        .filter(|(j, _)| *j != i)
+                        .map(|(_, num)| *num)
+                );
+                line_is_safe |= is_safe(
+                    line.iter()
+                        .enumerate()
+                        .filter(|(j, _)| *j != i + 1)
+                        .map(|(_, num)| *num)
+                );
+                if line_is_safe {
+                    break;
+                }
+            }
+        }
+        score += line_is_safe as usize;
+    }
     score
 }
 
@@ -147,5 +194,6 @@ mod tests {
     fn test_part2() {
         assert_eq!(part2(INPUT), 4);
         assert_eq!(part2(INPUT2), 7);
+        assert_eq!(part2(include_str!("../input/2024/day2.txt")), 536);
     }
 }
