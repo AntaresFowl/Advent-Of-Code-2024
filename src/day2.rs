@@ -66,7 +66,9 @@ pub fn part1(input: &str) -> usize {
         j += next_is_num as usize;
 
         let diff = num - prev_num;
-        is_safe = (is_ascending == diff.signum()) && diff.abs() <= 3;
+        if is_safe && (is_ascending != diff.signum() || diff.abs() > 3) {
+            is_safe = false;
+        }
 
         prev_num = num;
         j += 1;
