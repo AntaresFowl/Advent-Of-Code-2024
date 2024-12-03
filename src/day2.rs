@@ -22,8 +22,9 @@ fn get_first_two_bytes(mut i: usize, input: &[u8]) -> (i8, bool, i8, usize) {
         }
         i += 1;
     }
-    debug_assert!(prev_i + 6 >= i, "{prev_i} {i} {:?}", std::str::from_utf8(&input[prev_i..i]).unwrap());
-    unsafe { std::hint::assert_unchecked(prev_i + 6 >= i); }
+    unsafe {
+        std::hint::assert_unchecked(prev_i + 6 >= i);
+    }
     let diff = first_nums[1] - first_nums[0];
     (
         diff.signum(),
@@ -59,7 +60,7 @@ pub fn part1(input: &str) -> usize {
             continue;
         }
 
-        let convert = |x: u8| { x as i8 - 48 };
+        let convert = |x: u8| x as i8 - 48;
         let next = *unsafe { input.get_unchecked(j + 1) };
         let next_is_num = (next >= b'0' && next <= b'9') as i8;
         let num = (convert(byte) * 10 + convert(next)) * next_is_num + convert(byte);
@@ -98,20 +99,19 @@ pub fn part2(input: &str) -> usize {
     let mut score = 0;
     let input = input.as_bytes();
     let input = input.strip_prefix(b"\n").unwrap_or(input);
-    let lines = input.split(|&b| b == b'\n')
-        .map(|line| {
-            line.split(|&b| b == b' ')
-                .map(|bytes| {
-                    let mut num = 0;
-                    unsafe { std::hint::assert_unchecked(bytes.len() < 3) };
-                    for &byte in bytes {
-                        num *= 10;
-                        num += byte as i8 - 48;
-                    }
-                    num
-                })
-                .collect::<ArrayVec<_, 64>>()
-        });
+    let lines = input.split(|&b| b == b'\n').map(|line| {
+        line.split(|&b| b == b' ')
+            .map(|bytes| {
+                let mut num = 0;
+                unsafe { std::hint::assert_unchecked(bytes.len() < 3) };
+                for &byte in bytes {
+                    num *= 10;
+                    num += byte as i8 - 48;
+                }
+                num
+            })
+            .collect::<ArrayVec<_, 64>>()
+    });
 
     for line in lines {
         if line.len() < 2 {
@@ -122,7 +122,7 @@ pub fn part2(input: &str) -> usize {
         let mut is_ascending = 0;
         let mut ascension_test_needed = true;
         for i in 0..line.len() - 1 {
-            let num  = unsafe { line.get_unchecked(i) };
+            let num = unsafe { line.get_unchecked(i) };
             let next = unsafe { line.get_unchecked(i + 1) };
 
             let diff = next - num;
@@ -136,7 +136,7 @@ pub fn part2(input: &str) -> usize {
                         line.iter()
                             .enumerate()
                             .filter(|(j, _)| *j != 0)
-                            .map(|(_, num)| *num)
+                            .map(|(_, num)| *num),
                     );
                     if line_is_safe {
                         break;
@@ -147,13 +147,13 @@ pub fn part2(input: &str) -> usize {
                     line.iter()
                         .enumerate()
                         .filter(|(j, _)| *j != i)
-                        .map(|(_, num)| *num)
+                        .map(|(_, num)| *num),
                 );
                 line_is_safe |= is_safe(
                     line.iter()
                         .enumerate()
                         .filter(|(j, _)| *j != i + 1)
-                        .map(|(_, num)| *num)
+                        .map(|(_, num)| *num),
                 );
                 if line_is_safe {
                     break;
