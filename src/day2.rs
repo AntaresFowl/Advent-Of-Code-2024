@@ -17,8 +17,8 @@ fn get_first_two_bytes(mut i: usize, input: &[u8]) -> (i8, bool, i8, usize) {
                 addressor = true;
             }
         } else {
-            first_nums[addressor as usize] *= 10;
-            first_nums[addressor as usize] += byte as i8 - 48;
+            first_nums[usize::from(addressor)] *= 10;
+            first_nums[usize::from(addressor)] += byte as i8 - 48;
         }
         i += 1;
     }
@@ -74,7 +74,7 @@ pub fn part1(input: &str) -> usize {
         prev_num = num;
         j += 1;
     }
-    score + is_safe as usize
+    score + usize::from(is_safe)
 }
 
 fn is_safe(iter: impl Iterator<Item = i8>) -> bool {
@@ -160,7 +160,7 @@ pub fn part2(input: &str) -> usize {
                 }
             }
         }
-        score += line_is_safe as usize;
+        score += usize::from(line_is_safe);
     }
     score
 }
