@@ -38,7 +38,7 @@ pub fn part1(input: &str) -> usize {
     let (mut is_ascending, mut is_safe, mut prev_num, mut j) = get_first_two_bytes(0, input);
 
     while j < input.len() - 1 {
-        let byte = input[j];
+        let byte = *unsafe { input.get_unchecked(j) };
         if byte == b'\n' {
             score += is_safe as usize;
 
@@ -58,9 +58,10 @@ pub fn part1(input: &str) -> usize {
 
         let convert = |x: u8| { x as i8 - 48 };
         let mut num = convert(byte);
-        if input[j + 1] >= b'0' && input[j + 1] <= b'9' {
+        let next = *unsafe { input.get_unchecked(j + 1) };
+        if next >= b'0' && next <= b'9' {
             num *= 10;
-            num += convert(input[j + 1]);
+            num += convert(next);
             j += 1;
         }
 
