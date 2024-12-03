@@ -60,13 +60,10 @@ pub fn part1(input: &str) -> usize {
         }
 
         let convert = |x: u8| { x as i8 - 48 };
-        let mut num = convert(byte);
         let next = *unsafe { input.get_unchecked(j + 1) };
-        if next >= b'0' && next <= b'9' {
-            num *= 10;
-            num += convert(next);
-            j += 1;
-        }
+        let next_is_num = (next >= b'0' && next <= b'9') as i8;
+        let num = (convert(byte) * 10 + convert(next)) * next_is_num + convert(byte);
+        j += next_is_num as usize;
 
         let diff = num - prev_num;
         is_safe = (is_ascending == diff.signum()) && diff.abs() <= 3;
