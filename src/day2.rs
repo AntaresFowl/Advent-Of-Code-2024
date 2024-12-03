@@ -110,7 +110,7 @@ pub fn part2(input: &str) -> usize {
                 }
                 num
             })
-            .collect::<ArrayVec<_, 64>>()
+            .collect::<ArrayVec<_, 32>>()
     });
 
     for line in lines {
