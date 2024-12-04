@@ -1,5 +1,5 @@
 use std::{
-    hint::{assert_unchecked, unreachable_unchecked},
+    hint::assert_unchecked,
     ops::{BitAnd, Not},
     simd::{
         cmp::{SimdPartialEq, SimdPartialOrd},
@@ -8,7 +8,6 @@ use std::{
     },
 };
 
-use aho_corasick::{AhoCorasickBuilder, AhoCorasickKind};
 use aoc_runner_derive::aoc;
 use memchr::memmem::find_iter;
 
@@ -116,44 +115,49 @@ pub fn part1(input: &str) -> usize {
     out
 }
 
-// TODO: Alternative solution just using memchr?
-// Set is_active to true
-// Find all instances of 'm' and 'd'
-//     if instance == 'm' and is_active:
-//         if instance_ext = "mul(":
-//            do_the_thing
-//     else instance == 'd':
-//         if is_active:
-//             if instance_ext = "don't()":
-//                 is_active = false
-//             if instance_ext = "do()":
-//                 is_active = false
 #[aoc(day3, part2)]
 pub fn part2(input: &str) -> usize {
     let input = input.as_bytes();
     let mut out = 0;
-
+    let mut i = 0;
     let mut is_active = true;
-    let patters = &["mul(", "do()", "don't()"];
-    let ac = AhoCorasickBuilder::new()
-        .kind(Some(AhoCorasickKind::DFA))
-        .build(patters);
-    let ac = unsafe { ac.unwrap_unchecked() };
 
-    for item in ac.find_iter(input) {
-        let pattern = item.pattern().as_i32() as u8;
-        match pattern {
-            0 if is_active => {
-                let bytes = unsafe { input.get_unchecked(item.end()..) };
+    while input.len() > i {
+        let byte = *unsafe { input.get_unchecked(i) };
+        if byte == b'm' && is_active {
+            i += 1;
+            if i + 3 > input.len() {
+                break;
+            }
+            if unsafe { input.get_unchecked(i..i + 3) } == b"ul(" {
+                i += 3;
+                let bytes = unsafe { input.get_unchecked(i..) };
                 if let Some(num) = search(bytes) {
-                    out += num as usize
+                    out += num as usize;
                 }
-            },
-            0 => {},
-            1 => is_active = true,
-            2 => is_active = false,
-            _ => unsafe { unreachable_unchecked() }
+            }
+
+            continue;
         }
+        if byte == b'd' {
+            i += 1;
+            if i + 3 > input.len() {
+                break;
+            }
+            if unsafe { input.get_unchecked(i..i + 3) } == b"o()" {
+                is_active = true;
+                i += 3;
+            }
+            if i + 6 > input.len() {
+                break;
+            }
+            if unsafe { input.get_unchecked(i..i + 6) } == b"on't()" {
+                is_active = false;
+                i += 6;
+            }
+            continue;
+        }
+        i += 1;
     }
 
     out
