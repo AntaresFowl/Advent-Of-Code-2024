@@ -13,7 +13,7 @@ use aoc_runner_derive::aoc;
 use memchr::memmem::find_iter;
 
 #[inline(always)]
-unsafe fn to_num(bytes: &[u8]) -> usize {
+unsafe fn to_num(bytes: &[u8]) -> u32 {
     let len = bytes.len();
     debug_assert!(
         len >= 1 && len <= 3,
@@ -38,11 +38,11 @@ unsafe fn to_num(bytes: &[u8]) -> usize {
     let buffer = Simd::from_array(buffer) - Simd::splat(b'0');
     const MASK: Simd<u16, 4> = Simd::from_array([0, 100, 10, 1]);
     let buffer: Simd<u16, 4> = buffer.cast() * MASK;
-    buffer.reduce_sum() as usize
+    buffer.reduce_sum() as u32
 }
 
 #[inline(always)]
-fn search(input: &[u8]) -> Option<usize> {
+fn search(input: &[u8]) -> Option<u32> {
     if input.len() >= 8 {
         debug_assert!(
             input.len() >= 8,
@@ -121,7 +121,7 @@ pub fn part1(input: &str) -> usize {
         let start_pos = start_pos + 4;
         let bytes = unsafe { input.get_unchecked(start_pos..) };
         if let Some(num) = search(bytes) {
-            out += num
+            out += num as usize
         }
     }
 
@@ -158,7 +158,7 @@ pub fn part2(input: &str) -> usize {
             0 if is_active => {
                 let bytes = unsafe { input.get_unchecked(item.end()..) };
                 if let Some(num) = search(bytes) {
-                    out += num;
+                    out += num as usize
                 }
             },
             0 => {},
