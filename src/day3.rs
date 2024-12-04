@@ -15,12 +15,6 @@ use memchr::memmem::find_iter;
 #[inline(always)]
 unsafe fn to_num(bytes: &[u8]) -> u32 {
     let len = bytes.len();
-    debug_assert!(
-        len >= 1 && len <= 3,
-        "LEN WAS {} {:?}",
-        bytes.len(),
-        std::str::from_utf8(bytes).unwrap()
-    );
     #[allow(clippy::manual_range_contains)]
     unsafe {
         assert_unchecked(len >= 1 && len <= 3);
@@ -44,12 +38,6 @@ unsafe fn to_num(bytes: &[u8]) -> u32 {
 #[inline(always)]
 fn search(input: &[u8]) -> Option<u32> {
     if input.len() >= 8 {
-        debug_assert!(
-            input.len() >= 8,
-            "LENGTH OF INPUT {} REQUESTED {}",
-            input.len(),
-            8,
-        );
         let buffer = unsafe { input.get_unchecked(..8) };
         let buffer: Simd<u8, 8> = Simd::from_slice(buffer);
 
