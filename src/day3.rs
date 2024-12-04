@@ -1,5 +1,5 @@
 use std::{
-    hint::assert_unchecked,
+    hint::{assert_unchecked, unreachable_unchecked},
     ops::{BitAnd, Not},
     simd::{
         cmp::{SimdPartialEq, SimdPartialOrd},
@@ -148,13 +148,13 @@ pub fn part2(input: &str) -> usize {
     let mut is_active = true;
     let patters = &["mul(", "do()", "don't()"];
     let ac = AhoCorasickBuilder::new()
-        // TODO: See if construction is slowing us down too much
         .kind(Some(AhoCorasickKind::DFA))
-        .build(patters)
-        .unwrap();
+        .build(patters);
+    let ac = unsafe { ac.unwrap_unchecked() };
 
     for item in ac.find_iter(input) {
-        match item.pattern().as_i32() {
+        let pattern = item.pattern().as_i32() as u8;
+        match pattern {
             0 if is_active => {
                 let bytes = unsafe { input.get_unchecked(item.end()..) };
                 if let Some(num) = search(bytes) {
@@ -164,7 +164,7 @@ pub fn part2(input: &str) -> usize {
             0 => {},
             1 => is_active = true,
             2 => is_active = false,
-            _ => unreachable!(),
+            _ => unsafe { unreachable_unchecked() }
         }
     }
 
